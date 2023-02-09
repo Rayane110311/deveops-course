@@ -1,0 +1,188 @@
+
+
+What Is a Terraform Module?
+
+A Terraform module is a collection of standard configuration files in a dedicated directory. Terraform modules encapsulate groups of resources dedicated to one task, reducing the amount of code you have to develop for similar infrastructure components.
+
+
+
+
+5. Benefits of Modules
+
+You will always get benefited from modules if you implement it properly. But here are certain advantages you will get with the terraform modules -
+
+Organize configuration - With modules it is always easy to navigate and it helps any developer to understand the terraform project with ease. Certain with the module you can break down very complex infrastructure modules into very simplistic terraform modules.
+
+Encapsulation - You can benefit from the encapsulation also and with terraform module you can hide the internal implementation of your infrastructure set up so that you can prevent unwanted changes happening to your modules by other developers.
+
+Re-usability - If you have broken down your infrastructure into smaller and generic modules then it would help you to re-use the modules into another infrastructure setup.
+
+Consistency - Following the best practices(encapsulation, organize, simple terraform module) will help you to achieve consistent behavior across all the different environments which will help you to reduce the debugging time and reduce the infrastructure maintenance cost.
+
+
+
+1.1 Install apache httpd server in each module
+To keep things more granular we will install two apache httpd servers in each module.
+
+Let us start with the module-1 -
+
+module-1
+
+
+
+# mkdir module-1
+# cd module-1
+
+# vi main.tf
+
+
+terraform {
+  required_version = ">=0.12"
+}
+
+resource "aws_instance" "ec2_example" {
+
+    ami = "ami-06984ea821ac0a879"
+    instance_type = "t2.small"
+    vpc_security_group_ids = [aws_security_group.main.id]
+
+  user_data = <<-EOF
+      #!/bin/sh
+      sudo apt-get update
+      sudo apt install -y apache2
+      sudo systemctl status apache2
+      sudo systemctl start apache2
+      sudo chown -R $USER:$USER /var/www/html
+      sudo echo "Hello this is module-1 at instance id"> /var/www/html/index.html
+      EOF
+}
+
+resource "aws_security_group" "main" {
+    name        = "EC2-webserver-SG-1"
+  description = "Webserver for EC2 Instances"
+
+  ingress {
+    from_port   = 80
+    protocol    = "TCP"
+    to_port     = 80
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 22
+    protocol    = "TCP"
+    to_port     = 22
+    cidr_blocks = ["115.97.103.44/32"]
+  }
+
+  egress {
+    from_port   = 0
+    protocol    = "-1"
+    to_port     = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+
+
+#########  
+
+
+Module2 -
+
+
+mkdir module-2
+cd module-2
+
+# vi main.tf
+
+
+terraform {
+  required_version = ">=0.12"
+}
+
+resource "aws_instance" "ec2_example" {
+
+    ami = "ami-06984ea821ac0a879"
+    instance_type = "t2.small"
+    vpc_security_group_ids = [aws_security_group.main.id]
+
+  user_data = <<-EOF
+      #!/bin/sh
+      sudo apt-get update
+      sudo apt install -y apache2
+      sudo systemctl status apache2
+      sudo systemctl start apache2
+      sudo chown -R $USER:$USER /var/www/html
+      sudo echo "Hello this is module-2 at instance id" > /var/www/html/index.html
+      EOF
+}
+
+resource "aws_security_group" "main" {
+    name        = "EC2-webserver-SG-1"
+  description = "Webserver for EC2 Instances"
+
+  ingress {
+    from_port   = 80
+    protocol    = "TCP"
+    to_port     = 80
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 22
+    protocol    = "TCP"
+    to_port     = 22
+    cidr_blocks = ["115.97.103.44/32"]
+  }
+
+  egress {
+    from_port   = 0
+    protocol    = "-1"
+    to_port     = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+
+##################
+
+
+Parent main.tf  .. Call the Module --
+
+
+# vi main.tf
+
+provider "aws" {
+   region  = var.web-region
+ 
+}
+
+module "webserver-1" {
+  source = ".//module-1"
+}
+
+module "webserver-2" {
+  source = ".//module-2"
+}
+
+
+#########
+
+# vim variables.tf
+
+variable "web-region" {
+  type    = string
+  default = "ap-south-1"
+}
+
+
+#####
+
+# terraform get
+# terraform init
+# terraform fmt
+# terraform validate
+# terraform apply
+
+

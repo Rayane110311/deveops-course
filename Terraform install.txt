@@ -1,0 +1,84 @@
+wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
+
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+
+sudo apt update && sudo apt install terraform
+
+-------------------------------------------------------
+ sudo yum install -y yum-utils shadow-utils
+
+ sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+
+sudo yum -y install terraform
+
+AWS CLI
+
+curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+aws configure
+
+Go to AWS IAM to generate the key
+- Create access key AKIA6FW7T2N5XMN5DUGZ
+- Secret access key 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
+- Default region: US-EAST-1
+- dEFAULT OUTPUT: json
+
+Create new EC2 VM on AWS
+
+vi main.tf
+Create new EC2 VM on AWS:-
+
+--> main.tf
+
+provider "aws" {
+  region = "ap-south-1"
+}
+resource "aws_instance" "myFirstinstance" {
+  ami           = "ami-08df646e18b182346"
+  instance_type = "t2.small"
+  tags = {
+    Name = "my-ec2"
+  }
+}
+terraform fmt
+terraform init
+terraform validate
+terraform plan
+terraform apply
+
+Creating a bucket
+
+--> main.tf
+provider "aws" {
+  region = “ap-south-1"
+}
+resource "aws_s3_bucket" "bucket1" {
+  bucket = "my-tf-test-bucket1978"
+
+  tags = {
+    Name        = "My bucket"
+    Environment = "Dev"
+  }
+}
+- terraform fmt
+- terraform init
+- terraform validate
+- terraform plan
+- terraform apply
+---------------------------------------------------------------------------------------------------------------------------------------------
+                                                  Terraform variable
+
+
+
+
+
+
+
+
+
+
+
+
+
+

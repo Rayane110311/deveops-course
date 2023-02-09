@@ -1,0 +1,81 @@
+## providers.tf
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+
+
+## variables.tf
+
+
+## default Region
+
+variable "region" {
+  description = "The AWS region."
+  default = "us-east-1"
+
+}
+
+
+## Ami List
+
+variable "ami" {
+  type = map(string)
+
+  default = {
+    us-east-1 = "ami-0574da719dca65348"
+    us-east-2 = "ami-0beaa649c482330f7"
+ }
+    description = " The AMI's to use."
+}
+
+
+
+# Instance Type
+
+variable "ec2_instance_type" {
+  type = string
+  default = "t2.micro"
+}
+
+## Instance Name
+
+variable "ec2_instance_name" {
+  type = string
+  default = "Terraform100"
+}
+
+
+*************************************
+
+
+##  main.tf
+
+resource "aws_instance" "myec2" {
+
+  ami = var.ami["us-east-1"]
+
+  instance_type = var.ec2_instance_type
+
+  tags = {
+    Name = var.ec2_instance_name
+ }
+}
+
+*********************************************
+
+test.tfvars
+
+image = ami-0574da719dca65348
+region = us-east-1
+
+*****************************************************************************************************************************
+
+
+
+
+
+
+
+

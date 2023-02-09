@@ -1,0 +1,46 @@
+Terraform Workspaces:
+
+# vi main.tf
+
+provider "aws" {
+  region = "ap-south-1"
+}
+
+locals {
+  instance_name = "${terraform.workspace}"
+}
+
+resource "aws_instance" "ec2_example" {
+  ami = "ami-----"
+  instance_type = var.instance_type
+  tags = {
+    Name = local.instance_name
+ } 
+}
+
+
+
+# vi dev.tfvars
+
+instance_type = "t2.micro"
+
+
+# vi test.tfvars
+
+instance_type = "t2.small"
+
+
+# variables.tf
+
+variable "instance_type" {
+  type    = string
+  default = "t2.small"
+}
+
+
+# terraform plan -var-file="dev.tfvars"
+# terraform apply -var-file="dev.tfvars"
+
+
+# terraform plan -var-file="test.tfvars"
+# terraform apply -var-file="test.tfvars"
